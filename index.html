@@ -1,0 +1,1068 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>SUGYEOM KIM PORTFOLIO</title>
+  <!-- 브라우저 탭 로고(파비콘) -->
+  <link rel="icon" type="image/png" href="a.png" />
+  <link rel="apple-touch-icon" href="a.png" />
+  <!-- Satoshi 폰트 & 한글 보조 폰트 (Pretendard) -->
+  <link rel="preconnect" href="https://api.fontshare.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin />
+  <link href="https://api.fontshare.com/v2/css?f[]=satoshi@400,500,700&display=swap" rel="stylesheet" />
+  <link href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css" rel="stylesheet" />
+  <!-- 책장 넘김 플러그인 (StPageFlip) -->
+  <script src="https://cdn.jsdelivr.net/npm/page-flip@2.0.7/dist/js/page-flip.browser.min.js"></script>
+  <style>
+    :root {
+      --viewer-bg: #333637;
+      --sidebar-bg: #ffffff;
+      --sidebar-width: 260px;
+      --text-main: #1a1a1a;
+      --text-sub: #767676;
+      --accent-color: #24B1CA;
+      --border-color: #ececec;
+      --hover-bg: #f4f6f7;
+      --active-bg: #eaf7fa;
+      --font-satoshi: 'Satoshi', 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none;
+      user-select: none;
+      -webkit-touch-callout: none;
+    }
+
+    html, body {
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      color: var(--text-main);
+      font-family: var(--font-satoshi);
+      font-weight: 400;
+      overflow: hidden;
+    }
+
+    /* 데스크톱 환경에서 기본 시스템 커서 숨김 (정사각형 민트 커스텀 포인터 사용) */
+    @media (hover: hover) and (pointer: fine) {
+      html, body, a, button, .toc-item, .nav-btn, #flipbook, #flipbook *, .sidebar-footer, .sidebar-footer * {
+        cursor: none !important;
+      }
+    }
+
+    /* 커스텀 정사각형 민트 마우스 포인터 */
+    .cursor-dot,
+    .cursor-ring {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+      z-index: 9999;
+      border-radius: 0;
+      transform: translate3d(-100px, -100px, 0);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .cursor-dot {
+        display: block;
+        width: 6px;
+        height: 6px;
+        background-color: #24B1CA;
+        margin-left: -3px;
+        margin-top: -3px;
+        transition: opacity 0.15s ease;
+      }
+
+      .cursor-ring {
+        display: block;
+        width: 24px;
+        height: 24px;
+        border: 1.5px solid rgba(36, 177, 202, 0.65);
+        background-color: rgba(36, 177, 202, 0.04);
+        margin-left: -12px;
+        margin-top: -12px;
+        transition: width 0.2s ease, height 0.2s ease, margin 0.2s ease, background-color 0.2s ease, border-color 0.2s ease, opacity 0.15s ease;
+      }
+
+      body.cursor-hover .cursor-ring {
+        width: 34px;
+        height: 34px;
+        margin-left: -17px;
+        margin-top: -17px;
+        border-color: #24B1CA;
+        background-color: rgba(36, 177, 202, 0.12);
+      }
+
+      body.cursor-magnify .cursor-dot,
+      body.cursor-magnify .cursor-ring {
+        opacity: 0;
+      }
+    }
+
+    /* 데스크톱 전용 정사각형 확대경(루페) - 주변 어두워짐 없음 */
+    .magnifier-lens {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 230px;
+      height: 230px;
+      margin-left: -115px;
+      margin-top: -115px;
+      border-radius: 0;
+      border: 1.5px solid #24B1CA;
+      box-shadow:
+        0 14px 34px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.85) inset;
+      background-color: #ffffff;
+      background-repeat: no-repeat;
+      pointer-events: none;
+      z-index: 9998;
+      opacity: 0;
+      transform: translate3d(-300px, -300px, 0);
+      transition: opacity 0.18s ease;
+    }
+
+    .magnifier-lens::after {
+      content: "";
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 4px;
+      height: 4px;
+      margin-left: -2px;
+      margin-top: -2px;
+      border-radius: 0;
+      background-color: rgba(36, 177, 202, 0.5);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .magnifier-lens {
+        display: block;
+      }
+      .magnifier-lens.visible {
+        opacity: 1;
+      }
+    }
+
+    /* 전체 레이아웃 */
+    .app-container {
+      display: flex;
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+    }
+
+    /* 왼쪽 목차 사이드바 (Satoshi Regular 400 통일) */
+    .sidebar,
+    .sidebar * {
+      font-family: 'Satoshi', 'Pretendard', sans-serif !important;
+      font-weight: 400 !important;
+    }
+
+    .sidebar {
+      width: var(--sidebar-width);
+      height: 100%;
+      background-color: var(--sidebar-bg);
+      border-right: 1px solid var(--border-color);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      z-index: 100;
+      transition: transform 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+      flex-shrink: 0;
+    }
+
+    .sidebar-scroll {
+      flex: 1;
+      overflow-y: auto;
+      padding: 28px 0 20px;
+    }
+
+    .sidebar-scroll::-webkit-scrollbar {
+      width: 4px;
+    }
+    .sidebar-scroll::-webkit-scrollbar-thumb {
+      background: #e0e0e0;
+    }
+
+    /* 목차 아이템 스타일 (직각 & 전체 너비 채움) */
+    .toc-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      width: 100%;
+      padding: 8px 24px;
+      border-radius: 0;
+      transition: background-color 0.16s ease, color 0.16s ease;
+    }
+
+    .toc-item:hover {
+      background-color: var(--hover-bg);
+    }
+
+    .toc-item.active {
+      background-color: var(--active-bg);
+      color: var(--accent-color);
+    }
+
+    /* 커버 타이틀 */
+    .toc-cover {
+      font-size: 13px;
+      letter-spacing: 0.03em;
+      padding: 12px 24px 14px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid var(--border-color);
+      border-radius: 0;
+    }
+
+    /* 카테고리 제목 (MAIN PROJECTS, EXTRA WORKS) */
+    .toc-section-title {
+      font-size: 11px;
+      letter-spacing: 0.08em;
+      color: var(--text-sub);
+      padding: 20px 24px 8px;
+      text-transform: uppercase;
+    }
+
+    /* 정사각형 아이콘 */
+    .toc-icon {
+      width: 24px;
+      height: 24px;
+      object-fit: cover;
+      flex-shrink: 0;
+      border-radius: 0;
+      display: block;
+      pointer-events: none;
+    }
+
+    .toc-label {
+      font-size: 13.5px;
+      line-height: 1.35;
+      word-break: keep-all;
+    }
+
+    /* 좌측 하단 연락처 영역 (드래그 선택 가능) */
+    .sidebar-footer {
+      padding: 20px 24px 26px;
+      border-top: 1px solid var(--border-color);
+      color: #24B1CA;
+      font-size: 11.5px;
+      line-height: 1.7;
+      letter-spacing: 0.02em;
+      flex-shrink: 0;
+      background-color: #ffffff;
+      -webkit-user-select: text !important;
+      user-select: text !important;
+    }
+
+    .sidebar-footer * {
+      -webkit-user-select: text !important;
+      user-select: text !important;
+    }
+
+    .sidebar-footer a {
+      color: #24B1CA;
+      text-decoration: none;
+      display: inline-block;
+      transition: opacity 0.15s ease;
+    }
+
+    .sidebar-footer a:hover {
+      text-decoration: underline;
+      opacity: 0.8;
+    }
+
+    /* 우측 도록 뷰어 영역 (기본 #333637, 첫/마지막 페이지에서 #ffffff 전환) */
+    .viewer-area {
+      flex: 1;
+      height: 100%;
+      background-color: #333637;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      transition: background-color 0.35s ease;
+    }
+
+    .viewer-area.light-bg {
+      background-color: #ffffff;
+    }
+
+    /* 플립북이 놓이는 중앙 스테이지 */
+    .book-stage {
+      width: 100%;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    /* 넘길 때 아래/바깥쪽에 모서리나 그림자 흔적이 남지 않도록 클리핑 */
+    #flipbook {
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.42);
+      background: #ffffff;
+      position: relative;
+      overflow: hidden !important;
+      transition: box-shadow 0.35s ease;
+    }
+
+    .viewer-area.light-bg #flipbook {
+      box-shadow: 0 12px 36px rgba(0, 0, 0, 0.1);
+    }
+
+    /* A3 스프레드를 좌/우 A4 반페이지로 분할 렌더링 (GPU 레이어 합성 최적화) */
+    .half-page {
+      background-color: #ffffff;
+      overflow: hidden;
+      position: relative;
+      will-change: transform, clip-path;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    .half-page-bg {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      background-color: #ffffff;
+      background-repeat: no-repeat;
+      background-size: 200% 100%;
+      transform: translate3d(0, 0, 0);
+      will-change: transform;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      pointer-events: none;
+    }
+
+    .half-page.left-half .half-page-bg {
+      background-position: 0% 0%;
+    }
+
+    .half-page.right-half .half-page-bg {
+      background-position: 100% 0%;
+    }
+
+    /* 중앙 접지선(A4 경계) 은은한 종이 음영 */
+    .half-page.left-half::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 24px;
+      height: 100%;
+      background: linear-gradient(to left, rgba(0, 0, 0, 0.07), rgba(0, 0, 0, 0));
+      pointer-events: none;
+      z-index: 2;
+      opacity: 1;
+      transition: opacity 0.25s ease;
+    }
+
+    .half-page.right-half::after {
+      content: "";
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 24px;
+      height: 100%;
+      background: linear-gradient(to right, rgba(0, 0, 0, 0.06), rgba(0, 0, 0, 0));
+      pointer-events: none;
+      z-index: 2;
+      opacity: 1;
+      transition: opacity 0.25s ease;
+    }
+
+    /* 첫 페이지 & 마지막 페이지에서는 중앙 접지선 그림자 숨김 */
+    .viewer-area.light-bg .half-page.left-half::after,
+    .viewer-area.light-bg .half-page.right-half::after {
+      opacity: 0;
+    }
+
+    /* 좌우 넘김 버튼 */
+    .nav-btn {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 40px;
+      height: 40px;
+      border: 1px solid rgba(255, 255, 255, 0.22);
+      background-color: rgba(255, 255, 255, 0.1);
+      color: #ffffff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 30;
+      transition: all 0.25s ease;
+    }
+
+    .nav-btn:hover {
+      background-color: #ffffff;
+      color: #333637;
+      border-color: #ffffff;
+    }
+
+    .viewer-area.light-bg .nav-btn {
+      border-color: #e2e2e2;
+      background-color: rgba(255, 255, 255, 0.92);
+      color: #222222;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    }
+
+    .viewer-area.light-bg .nav-btn:hover {
+      background-color: #1a1a1a;
+      color: #ffffff;
+      border-color: #1a1a1a;
+    }
+
+    .nav-btn:disabled {
+      opacity: 0.2;
+      pointer-events: none;
+    }
+
+    .nav-prev { left: 18px; }
+    .nav-next { right: 18px; }
+
+    /* 하단 페이지 표시 */
+    .page-indicator {
+      position: absolute;
+      bottom: 18px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-family: 'Satoshi', sans-serif;
+      font-size: 12px;
+      font-weight: 400;
+      color: rgba(255, 255, 255, 0.72);
+      letter-spacing: 0.06em;
+      z-index: 20;
+      transition: color 0.35s ease;
+    }
+
+    .viewer-area.light-bg .page-indicator {
+      color: #767676;
+    }
+
+    /* 모바일 상단 바 & 토글 버튼 */
+    .mobile-header {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 50px;
+      background-color: #ffffff;
+      border-bottom: 1px solid var(--border-color);
+      font-family: 'Satoshi', 'Pretendard', sans-serif;
+      font-weight: 400;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 90;
+    }
+
+    .menu-toggle-btn {
+      background: none;
+      border: 1px solid #e0e0e0;
+      border-radius: 0;
+      padding: 6px 10px;
+      font-family: 'Satoshi', 'Pretendard', sans-serif;
+      font-size: 13px;
+      font-weight: 400;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .mobile-title {
+      font-size: 12px;
+      font-weight: 400;
+      letter-spacing: 0.04em;
+    }
+
+    .sidebar-backdrop {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      z-index: 95;
+    }
+
+    /* 반응형 (태블릿 & 모바일) */
+    @media (max-width: 900px) {
+      .mobile-header {
+        display: flex;
+      }
+
+      .sidebar {
+        position: fixed;
+        top: 0;
+        left: 0;
+        height: 100%;
+        transform: translateX(-100%);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, 0.18);
+      }
+
+      .sidebar.open {
+        transform: translateX(0);
+      }
+
+      .sidebar-backdrop.open {
+        display: block;
+      }
+
+      .nav-btn {
+        width: 34px;
+        height: 34px;
+      }
+      .nav-prev { left: 8px; }
+      .nav-next { right: 8px; }
+    }
+  </style>
+</head>
+<body oncontextmenu="return false;" ondragstart="return false;">
+  <!-- 데스크톱 커스텀 정사각형 민트 포인터 & 정사각형 확대경 -->
+  <div class="cursor-ring" id="cursorRing"></div>
+  <div class="cursor-dot" id="cursorDot"></div>
+  <div class="magnifier-lens" id="magnifierLens"></div>
+
+  <!-- 모바일 상단 헤더 -->
+  <header class="mobile-header">
+    <button class="menu-toggle-btn" id="menuToggle" aria-label="목차 열기">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <line x1="3" y1="6" x2="21" y2="6"></line>
+        <line x1="3" y1="12" x2="21" y2="12"></line>
+        <line x1="3" y1="18" x2="21" y2="18"></line>
+      </svg>
+      목차
+    </button>
+    <span class="mobile-title">SUGYEOM KIM PORTFOLIO</span>
+    <span style="width: 48px;"></span>
+  </header>
+
+  <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
+
+  <div class="app-container">
+    <!-- 왼쪽 목차 -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar-scroll" id="tocContainer"></div>
+      <div class="sidebar-footer" id="sidebarFooter">
+        <div>SUGYEOM KIM</div>
+        <div><a href="https://www.instagram.com/gyumgyumsu/" target="_blank" rel="noopener noreferrer">@gyumgyumsu</a></div>
+        <div>+82 10 2180 2751</div>
+        <div>0606sg@gmail.com</div>
+      </div>
+    </aside>
+
+    <!-- 메인 웹도록 뷰어 -->
+    <main class="viewer-area light-bg" id="viewerArea">
+      <button class="nav-btn nav-prev" id="prevBtn" aria-label="이전 페이지">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="15 18 9 12 15 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="book-stage" id="bookStage">
+        <div id="flipbook"></div>
+      </div>
+
+      <button class="nav-btn nav-next" id="nextBtn" aria-label="다음 페이지">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="9 18 15 12 9 6"></polyline>
+        </svg>
+      </button>
+
+      <div class="page-indicator" id="pageIndicator">1 / 26</div>
+    </main>
+  </div>
+
+  <script>
+    const TOTAL_SPREADS = 26; // 1.png ~ 26.png (A3 좌우 합본 기준)
+    const A4_RATIO = 210 / 297; // A4 단일면 가로:세로 비율
+    const ZOOM_LEVEL = 2.2; // 데스크톱 마우스 호버 확대 배율
+
+    // 목차 데이터 구성
+    const TOC_DATA = [
+      { type: "cover", title: "SUGYEOM KIM PORTFOLIO", spread: 1, icon: null },
+      { type: "item", title: "PROFILE & CONTENTS", spread: 2, icon: "a.png" },
+
+      { type: "section", title: "MAIN PROJECTS" },
+      { type: "item", title: "showcase!", spread: 3, icon: "b.png" },
+      { type: "item", title: "TUNNEL OF TRANSITION", spread: 7, icon: "c.png" },
+      { type: "item", title: "Gray Zone", spread: 11, icon: "d.png" },
+      { type: "item", title: "GALLERY FILM", spread: 15, icon: "e.png" },
+
+      { type: "section", title: "EXTRA WORKS" },
+      { type: "item", title: "ARCHITEN", spread: 19, icon: "f.png" },
+      { type: "item", title: "Nomad's Haven", spread: 21, icon: "g.png" },
+      { type: "item", title: "Bridge Chapel", spread: 22, icon: "h.png" },
+      { type: "item", title: "보일 듯 말 듯", spread: 23, icon: "i.png" },
+      { type: "item", title: "KATSUMO", spread: 24, icon: "j.png" },
+      { type: "item", title: "수학공간", spread: 25, icon: "k.png" },
+      { type: "item", title: "EPA", spread: 25, icon: "l.png" }
+    ];
+
+    let pageFlip = null;
+    let selectedTocIdx = 0;
+    let currentSpreadNumber = 1;
+    let isFlippingOrDragging = false;
+    const decodedImagesCache = [];
+
+    // 0. 모든 페이지 이미지 사전 로딩 + GPU 디코딩 (넘김 시작 시 버퍼/지연 방지)
+    function preloadAndDecodeAllSpreads() {
+      // 1~4번 우선 디코딩 후 나머지 순차 디코딩
+      const order = [];
+      for (let i = 1; i <= TOTAL_SPREADS; i++) order.push(i);
+
+      order.forEach((num) => {
+        const img = new Image();
+        img.decoding = "async";
+        img.src = `${num}.png`;
+        img.onload = () => {
+          if (typeof img.decode === "function") {
+            img.decode().catch(() => {});
+          }
+        };
+        decodedImagesCache.push(img);
+      });
+    }
+
+    // 다음/이전 인접 페이지 레이어를 미리 GPU에 올려두어 넘김 시작 즉시 렌더링
+    function warmAdjacentPages(currentPageIndex) {
+      const pages = document.querySelectorAll("#flipbook .half-page");
+      const targets = [
+        currentPageIndex - 2,
+        currentPageIndex - 1,
+        currentPageIndex,
+        currentPageIndex + 1,
+        currentPageIndex + 2,
+        currentPageIndex + 3
+      ];
+      targets.forEach((idx) => {
+        if (pages[idx]) {
+          pages[idx].style.visibility = "visible";
+        }
+      });
+    }
+
+    // 1. 왼쪽 목차 렌더링
+    function renderTOC() {
+      const container = document.getElementById("tocContainer");
+      container.innerHTML = "";
+
+      TOC_DATA.forEach((entry, idx) => {
+        if (entry.type === "section") {
+          const sec = document.createElement("div");
+          sec.className = "toc-section-title";
+          sec.textContent = entry.title;
+          container.appendChild(sec);
+          return;
+        }
+
+        const item = document.createElement("div");
+        item.className = entry.type === "cover" ? "toc-item toc-cover" : "toc-item";
+        item.dataset.tocIndex = idx;
+        item.dataset.spread = entry.spread;
+
+        if (entry.icon) {
+          const img = document.createElement("img");
+          img.src = entry.icon;
+          img.alt = "";
+          img.className = "toc-icon";
+          img.draggable = false;
+          img.onerror = () => { img.style.display = "none"; };
+          item.appendChild(img);
+        }
+
+        const label = document.createElement("span");
+        label.className = "toc-label";
+        label.textContent = entry.title;
+        item.appendChild(label);
+
+        item.addEventListener("click", () => {
+          selectedTocIdx = idx;
+          goToSpread(entry.spread);
+          closeMobileSidebar();
+        });
+
+        container.appendChild(item);
+      });
+    }
+
+    // 2. A3 이미지를 좌/우 A4 페이지 DOM으로 생성
+    function createPagesFragment() {
+      const frag = document.createDocumentFragment();
+
+      for (let i = 1; i <= TOTAL_SPREADS; i++) {
+        const leftPage = document.createElement("div");
+        leftPage.className = "half-page left-half";
+        const leftBg = document.createElement("div");
+        leftBg.className = "half-page-bg";
+        leftBg.style.backgroundImage = `url("${i}.png")`;
+        leftPage.appendChild(leftBg);
+
+        const rightPage = document.createElement("div");
+        rightPage.className = "half-page right-half";
+        const rightBg = document.createElement("div");
+        rightBg.className = "half-page-bg";
+        rightBg.style.backgroundImage = `url("${i}.png")`;
+        rightPage.appendChild(rightBg);
+
+        frag.appendChild(leftPage);
+        frag.appendChild(rightPage);
+      }
+
+      return frag;
+    }
+
+    // 3. 상하좌우 여백 확보 & 화질 저하 방지를 위한 짝수 픽셀 크기 계산
+    function calculatePageDimensions() {
+      const viewer = document.getElementById("viewerArea");
+      const vw = viewer.clientWidth;
+      const vh = viewer.clientHeight;
+      const isMobilePortrait = window.innerWidth <= 900 && vh > vw;
+
+      const verticalMargin = isMobilePortrait ? 140 : 144;
+      const horizontalMargin = isMobilePortrait ? 76 : 150;
+
+      const availW = Math.max(200, vw - horizontalMargin);
+      const availH = Math.max(240, vh - verticalMargin);
+
+      let singlePageWidth, singlePageHeight;
+
+      if (isMobilePortrait) {
+        singlePageHeight = availH;
+        singlePageWidth = singlePageHeight * A4_RATIO;
+        if (singlePageWidth > availW) {
+          singlePageWidth = availW;
+          singlePageHeight = singlePageWidth / A4_RATIO;
+        }
+      } else {
+        const spreadRatio = A4_RATIO * 2;
+        singlePageHeight = availH;
+        const spreadWidth = singlePageHeight * spreadRatio;
+
+        if (spreadWidth > availW) {
+          singlePageWidth = availW / 2;
+          singlePageHeight = singlePageWidth / A4_RATIO;
+        } else {
+          singlePageWidth = spreadWidth / 2;
+        }
+      }
+
+      const cleanW = Math.floor(singlePageWidth / 2) * 2;
+      const cleanH = Math.floor(singlePageHeight / 2) * 2;
+
+      return {
+        width: cleanW,
+        height: cleanH,
+        isPortrait: isMobilePortrait
+      };
+    }
+
+    // 4. StPageFlip 초기화 및 리사이즈 대응
+    function initOrRebuildFlipbook(keepPageIndex = 0) {
+      const stage = document.getElementById("bookStage");
+      if (pageFlip) {
+        try { pageFlip.destroy(); } catch (e) {}
+        pageFlip = null;
+      }
+
+      stage.innerHTML = '<div id="flipbook"></div>';
+      const flipbookEl = document.getElementById("flipbook");
+      flipbookEl.appendChild(createPagesFragment());
+
+      const dims = calculatePageDimensions();
+
+      pageFlip = new St.PageFlip(flipbookEl, {
+        width: dims.width,
+        height: dims.height,
+        size: "fixed",
+        showCover: false,
+        usePortrait: dims.isPortrait,
+        startPage: keepPageIndex,
+        maxShadowOpacity: 0.35,
+        mobileScrollSupport: false,
+        flippingTime: 620,
+        useMouseEvents: true,
+        swipeDistance: 25
+      });
+
+      pageFlip.loadFromHTML(flipbookEl.querySelectorAll(".half-page"));
+
+      // 포인터가 책자에 닿는 순간부터 인접 페이지 GPU 준비
+      flipbookEl.addEventListener("pointerdown", () => {
+        if (pageFlip) {
+          warmAdjacentPages(pageFlip.getCurrentPageIndex());
+        }
+      }, { passive: true });
+
+      pageFlip.on("flip", (e) => {
+        isFlippingOrDragging = false;
+        updateUI(e.data);
+      });
+
+      pageFlip.on("changeState", (e) => {
+        if (e.data === "flipping" || e.data === "user_fold") {
+          isFlippingOrDragging = true;
+          hideMagnifier();
+          if (pageFlip) {
+            warmAdjacentPages(pageFlip.getCurrentPageIndex());
+          }
+        } else {
+          isFlippingOrDragging = false;
+        }
+      });
+
+      updateUI(keepPageIndex);
+    }
+
+    // 특정 스프레드(1~26)로 이동
+    function goToSpread(spreadNum) {
+      if (!pageFlip) return;
+      const targetPageIndex = (spreadNum - 1) * 2;
+      warmAdjacentPages(targetPageIndex);
+      pageFlip.flip(targetPageIndex);
+    }
+
+    // 현재 페이지에 맞춰 배경색, 중앙 그림자, 하단 번호, 버튼 상태, 목차 하이라이트 동기화
+    function updateUI(currentPageIndex) {
+      currentSpreadNumber = Math.floor(currentPageIndex / 2) + 1;
+      const isPortrait = pageFlip && pageFlip.getOrientation() === "portrait";
+
+      warmAdjacentPages(currentPageIndex);
+
+      // 첫 페이지(1)와 마지막 페이지(26)만 배경색 흰색(#ffffff) 및 중앙 접지 그림자 숨김
+      const viewerArea = document.getElementById("viewerArea");
+      const isFirstOrLast = currentSpreadNumber === 1 || currentSpreadNumber === TOTAL_SPREADS;
+      viewerArea.classList.toggle("light-bg", isFirstOrLast);
+
+      const indicator = document.getElementById("pageIndicator");
+      if (isPortrait) {
+        const side = currentPageIndex % 2 === 0 ? "L" : "R";
+        indicator.textContent = `${currentSpreadNumber} / ${TOTAL_SPREADS} (${side})`;
+      } else {
+        indicator.textContent = `${currentSpreadNumber} / ${TOTAL_SPREADS}`;
+      }
+
+      const prevBtn = document.getElementById("prevBtn");
+      const nextBtn = document.getElementById("nextBtn");
+      prevBtn.disabled = currentPageIndex <= 0;
+      nextBtn.disabled = isPortrait
+        ? currentPageIndex >= TOTAL_SPREADS * 2 - 1
+        : currentPageIndex >= (TOTAL_SPREADS - 1) * 2;
+
+      let matchedIdx = -1;
+      const currentSelectedEntry = TOC_DATA[selectedTocIdx];
+      if (currentSelectedEntry && currentSelectedEntry.spread === currentSpreadNumber) {
+        matchedIdx = selectedTocIdx;
+      } else {
+        for (let i = 0; i < TOC_DATA.length; i++) {
+          if (TOC_DATA[i].spread && TOC_DATA[i].spread <= currentSpreadNumber) {
+            matchedIdx = i;
+          }
+        }
+        selectedTocIdx = matchedIdx;
+      }
+
+      document.querySelectorAll(".toc-item").forEach((el) => {
+        el.classList.toggle("active", Number(el.dataset.tocIndex) === matchedIdx);
+      });
+    }
+
+    // =========================================================
+    // 5. 데스크톱 정사각형 민트 포인터 & 책자 호버 정사각형 확대경
+    // =========================================================
+    const cursorDot = document.getElementById("cursorDot");
+    const cursorRing = document.getElementById("cursorRing");
+    const magnifierLens = document.getElementById("magnifierLens");
+    const isDesktopPointer = () => window.matchMedia("(hover: hover) and (pointer: fine)").matches;
+
+    let mouseX = -200, mouseY = -200;
+    let dotX = -200, dotY = -200;
+    let ringX = -200, ringY = -200;
+    let isMagnifying = false;
+    let isMouseDown = false;
+
+    function hideMagnifier() {
+      isMagnifying = false;
+      document.body.classList.remove("cursor-magnify");
+      magnifierLens.classList.remove("visible");
+    }
+
+    function animateCursor() {
+      if (isDesktopPointer()) {
+        dotX += (mouseX - dotX) * 0.42;
+        dotY += (mouseY - dotY) * 0.42;
+        ringX += (mouseX - ringX) * 0.16;
+        ringY += (mouseY - ringY) * 0.16;
+
+        cursorDot.style.transform = `translate3d(${dotX}px, ${dotY}px, 0)`;
+        cursorRing.style.transform = `translate3d(${ringX}px, ${ringY}px, 0)`;
+
+        const flipbookEl = document.getElementById("flipbook");
+        if (flipbookEl && !isFlippingOrDragging && !isMouseDown) {
+          const rect = flipbookEl.getBoundingClientRect();
+          const insideBook =
+            dotX >= rect.left &&
+            dotX <= rect.right &&
+            dotY >= rect.top &&
+            dotY <= rect.bottom &&
+            rect.width > 0;
+
+          if (insideBook) {
+            isMagnifying = true;
+            document.body.classList.add("cursor-magnify");
+            magnifierLens.classList.add("visible");
+
+            const relX = dotX - rect.left;
+            const relY = dotY - rect.top;
+            const lensRadius = 115;
+
+            const bgW = rect.width * ZOOM_LEVEL;
+            const bgH = rect.height * ZOOM_LEVEL;
+            const bgPosX = -(relX * ZOOM_LEVEL - lensRadius);
+            const bgPosY = -(relY * ZOOM_LEVEL - lensRadius);
+
+            magnifierLens.style.transform = `translate3d(${dotX}px, ${dotY}px, 0)`;
+            magnifierLens.style.backgroundImage = `url("${currentSpreadNumber}.png")`;
+            magnifierLens.style.backgroundSize = `${bgW}px ${bgH}px`;
+            magnifierLens.style.backgroundPosition = `${bgPosX}px ${bgPosY}px`;
+          } else {
+            hideMagnifier();
+          }
+        } else {
+          hideMagnifier();
+        }
+      }
+      requestAnimationFrame(animateCursor);
+    }
+    requestAnimationFrame(animateCursor);
+
+    document.addEventListener("mousemove", (e) => {
+      if (!isDesktopPointer()) return;
+      if (mouseX === -200 && mouseY === -200) {
+        dotX = ringX = e.clientX;
+        dotY = ringY = e.clientY;
+      }
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+
+      const interactiveEl = e.target.closest(".toc-item, .nav-btn, button, a");
+      document.body.classList.toggle("cursor-hover", Boolean(interactiveEl));
+    });
+
+    document.addEventListener("mousedown", () => {
+      isMouseDown = true;
+      hideMagnifier();
+    });
+
+    document.addEventListener("mouseup", () => {
+      isMouseDown = false;
+    });
+
+    document.addEventListener("mouseleave", () => {
+      hideMagnifier();
+      cursorDot.style.opacity = "0";
+      cursorRing.style.opacity = "0";
+    });
+
+    document.addEventListener("mouseenter", () => {
+      if (!isMagnifying) {
+        cursorDot.style.opacity = "1";
+        cursorRing.style.opacity = "1";
+      }
+    });
+
+    // =========================================================
+    // 6. 이미지 퍼가기 / 저장 / 소스 보기 방지 (좌측 하단 텍스트 선택 허용)
+    // =========================================================
+    document.addEventListener("selectstart", (e) => {
+      if (!e.target.closest("#sidebarFooter")) {
+        e.preventDefault();
+      }
+    });
+    document.addEventListener("contextmenu", (e) => e.preventDefault());
+    document.addEventListener("dragstart", (e) => e.preventDefault());
+    document.addEventListener("keydown", (e) => {
+      const key = e.key.toLowerCase();
+      if ((e.ctrlKey || e.metaKey) && (key === "s" || key === "u" || key === "p")) {
+        e.preventDefault();
+        return false;
+      }
+      if (
+        e.key === "F12" ||
+        ((e.ctrlKey || e.metaKey) && e.shiftKey && (key === "i" || key === "j" || key === "c"))
+      ) {
+        e.preventDefault();
+        return false;
+      }
+
+      if (!pageFlip) return;
+      if (e.key === "ArrowLeft") {
+        warmAdjacentPages(pageFlip.getCurrentPageIndex());
+        pageFlip.flipPrev();
+      }
+      if (e.key === "ArrowRight") {
+        warmAdjacentPages(pageFlip.getCurrentPageIndex());
+        pageFlip.flipNext();
+      }
+    });
+
+    // 모바일 사이드바 열기/닫기
+    const sidebar = document.getElementById("sidebar");
+    const backdrop = document.getElementById("sidebarBackdrop");
+
+    document.getElementById("menuToggle").addEventListener("click", () => {
+      sidebar.classList.add("open");
+      backdrop.classList.add("open");
+    });
+
+    function closeMobileSidebar() {
+      sidebar.classList.remove("open");
+      backdrop.classList.remove("open");
+    }
+    backdrop.addEventListener("click", closeMobileSidebar);
+
+    // 좌우 버튼 조작
+    document.getElementById("prevBtn").addEventListener("click", () => {
+      if (!pageFlip) return;
+      warmAdjacentPages(pageFlip.getCurrentPageIndex());
+      pageFlip.flipPrev();
+    });
+    document.getElementById("nextBtn").addEventListener("click", () => {
+      if (!pageFlip) return;
+      warmAdjacentPages(pageFlip.getCurrentPageIndex());
+      pageFlip.flipNext();
+    });
+
+    // 브라우저 창 크기 변경 시 여백 재계산
+    let resizeTimer = null;
+    window.addEventListener("resize", () => {
+      hideMagnifier();
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        const currentIdx = pageFlip ? pageFlip.getCurrentPageIndex() : 0;
+        initOrRebuildFlipbook(currentIdx);
+      }, 180);
+    });
+
+    // 실행
+    window.addEventListener("DOMContentLoaded", () => {
+      preloadAndDecodeAllSpreads();
+      renderTOC();
+      initOrRebuildFlipbook(0);
+    });
+  </script>
+</body>
+</html>
